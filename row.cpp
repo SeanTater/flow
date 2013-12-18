@@ -2,8 +2,8 @@
 
 Row::Row(int id, string title, string body, string tags) {
     this->id = id;
-    tokenize(title, boost::regex("\\W+|\\w+"), words);
-    tokenize(body, boost::regex("\\W+|\\w+"), words);
+    tokenize(title, boost::regex("[^\\w\\s]+|\\w+"), words);
+    tokenize(body, boost::regex("[^\\w\\s]+|\\w+"), words);
     tokenize(tags, boost::regex("[^ ]+"), this->tags);
 }
 

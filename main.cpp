@@ -10,8 +10,9 @@ using namespace std;
 
 int main()
 {
-    Dataset train("/tmp/sek.db", "train");
-    vector<Row> entries = train.load_block(0);
-    cout << entries[0].words[0];
+    Flow flow;
+    flow.train(100000);
+    flow.relation(vector<string>({"file", "permissions"}));
+    flow.relation(vector<string>({"c", "++", "private", "protected"}));
     return 0;
 }

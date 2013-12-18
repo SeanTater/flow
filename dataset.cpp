@@ -1,4 +1,5 @@
 #include "dataset.h"
+#define BLOCKSIZE 1000
 
 Dataset::Dataset(string filename, string table) {
     sqlite3_open(filename.c_str(), &db);
@@ -14,13 +15,14 @@ vector<Row> Dataset::load_block(int start_id) {
     sqlite3_stmt *statement;
     response = sqlite3_prepare_v2(
         db,
-        "SELECT id, title, body, tags FROM train WHERE id >= ? ORDER BY id LIMIT 1000",
+        "SELECT id, title, body, tags FROM train WHERE id >= ? ORDER BY id LIMIT ?",
         -1,
         &statement,
         NULL);
     if (response != SQLITE_OK)
         throw string(sqlite3_errmsg(db));
     sqlite3_bind_int(statement, 1, start_id);
+    sqlite3_bind_int(statement, 2, BLOCKSIZE);
 
     response = sqlite3_step(statement);
     while (response != SQLITE_DONE) {
@@ -41,4 +43,3 @@ vector<Row> Dataset::load_block(int start_id) {
     sqlite3_finalize(statement);
     return block;
 }
-
