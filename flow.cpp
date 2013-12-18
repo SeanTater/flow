@@ -56,13 +56,13 @@ void Flow::train(int row_limit) {
         cout << "edge count: " << edges.size() <<endl;
 
         // Every 100 million unique edges, cut out the worst 25 million
-        if (edges.size() > 50000000) {
+        if (edges.size() > 10000000) {
             vector<pair<float, Edge> > worst;
-            worst.reserve(52000000);
+            worst.reserve(12000000);
             for (pair<Edge, uint> edge : edges) {
                 worst.emplace_back(score(edge.first, edge.second), edge.first);
             }
-            nth_element(worst.begin(), worst.begin() + 25000000, worst.end());
+            nth_element(worst.begin(), worst.begin() + 5000000, worst.end());
             for (int i=0; i<25000000; i++) {
                 edges.erase(worst[i].second);
             }
