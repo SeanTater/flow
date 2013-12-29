@@ -2,9 +2,17 @@
 
 Row::Row(int id, string title, string body, string tags) {
     this->id = id;
+    tag_string = tags;
     tokenize(title, boost::regex("[^\\w\\s]+|\\w+"), words, string(""));
     tokenize(body, boost::regex("[^\\w\\s]+|\\w+"), words, string(""));
     tokenize(tags, boost::regex("[^ ]+"), words, string("tag: "));
+    words.push_back(string("tag: 0"));
+}
+
+Row::Row(int id, string title, string body) {
+    this->id = id;
+    tokenize(title, boost::regex("[^\\w\\s]+|\\w+"), words, string(""));
+    tokenize(body, boost::regex("[^\\w\\s]+|\\w+"), words, string(""));
 }
 
 void Row::tokenize(string text, boost::regex pattern, vector<string> &tokens, string prefix) {

@@ -1,59 +1,121 @@
 #ifndef FLOW_H
 #define FLOW_H
 #include <vector>
+#include <list>
+#include <bitset>
 #include <unordered_map>
 #include <queue>
+#include <algorithm>
 #include <cassert>
-#include <boost/pool/poolfwd.hpp>
-#include <boost/pool/pool_alloc.hpp>
+#include <random>
 #include "dataset.h"
 #include "row.h"
 
-class Edge {
+class Vertex;
+class VEdge {
 public:
-    union {
-        ulong id;
-        struct {
-            uint to;
-            uint from;
-        };
-    };
-    mutable uint count;
-
-    Edge() {
-        id = 0;
+    Vertex *endpoint;
+    uint count;
+    double score;
+    //VEdge(Vertex *e, uint c) {
+    //    endpoint = e;
+    //    count = c;
+    //}
+    bool operator <(const VEdge &other) {
+        return score < other.score;
     }
-    Edge(uint f, uint t) {
-        from = f;
-        to = t;
-    }
-    bool operator <(const Edge &other) const {
-        return id < other.id;
+    bool operator <(const Vertex *other) {
+        return (ulong)endpoint < (ulong)other;
     }
 };
 
+class Vertex {
+public:
+    vector<VEdge> edges;
+    uint count;
+    double cutoff = 0.0;
+    string text;
+    char rounds;
+    bitset<64> hashtable;
+
+    void link_vertex(Vertex * endpoint, uint edge_count) {
+        static random_device rdev;
+        static mt19937 generator(rdev());
+        double r = log(generate_canonical<double, 64>(generator));
+        if (hashtable[(ulong)endpoint % 64]) {
+            auto pos = lower_bound(edges.begin(), edges.end(), endpoint);
+            if (pos != edges.end() && (*pos).endpoint == endpoint) {
+                (*pos).score += r;
+                (*pos).count++;
+                return;
+            }/*
+            for (VEdge &edge : edges) {
+                if (edge.endpoint == endpoint) {
+                    edge.count += 1;//edge_count;
+                    return;
+                }
+            }*/
+        }
+
+        if (r < cutoff) {
+            // Create a new edge
+            auto pos = lower_bound(edges.begin(), edges.end(), endpoint);
+            pos = edges.emplace(pos);
+            (*pos).endpoint = endpoint;
+            (*pos).score = r;
+            (*pos).count = 1; //edge_count;
+
+            if (edges.size() > 15) {
+                // Erase the worst of our entries
+                auto m = max_element(edges.begin(), edges.end());
+                cutoff = (*m).score;
+                edges.erase(m);
+                refresh_hashtable(endpoint);
+                // Erase the same one from theirs too
+                m = lower_bound(endpoint->edges.begin(), endpoint->edges.end(), this);
+                if (m != endpoint->edges.end() && (*m).endpoint == this)
+                    endpoint->edges.erase(m);
+                endpoint->refresh_hashtable(this);
+            }
+
+
+        }
+    }
+
+    void refresh_hashtable(Vertex *entry) {
+        if (not (rounds % 16)) {
+            hashtable.reset();
+            for (VEdge &edge : edges) {
+                hashtable[(ulong)edge.endpoint % 64] = true;
+            }
+        } else {
+            hashtable[(ulong)entry % 64] = true;
+        }
+        rounds++;
+    }
+
+
+    void relation(Vertex *parent, unordered_map<Vertex*, double> &scores, double factor, int degree=2) {
+        scores[this] += factor;
+        if (degree == 0) return;
+        for (VEdge &edge : edges) {
+            if (edge.endpoint != parent) {
+                // (double)edge.count / (double)count
+                edge.endpoint->relation(this, scores, factor * exp(edge.score), degree-1);
+            }
+        }
+    }
+};
+
+typedef unordered_map<string, Vertex*> VertexMap;
+
 class Flow
 {
-    Dataset dataset;
-    int connection_limit;
-    unordered_map<string, uint> word_to_id;
-    vector<string> id_to_word;
-    vector<uint> word_count;
-    // Map, not unordered map.
-    // It's slower (by about 2x actually) for training
-    // but! Ordering implies that you can search for a start word and iterate all its results
-
-    map<Edge,
-        uint,
-        less<Edge>,
-        boost::fast_pool_allocator<pair<const Edge, uint> >
-    > edges;
+    VertexMap vertices;
 public:
-    Flow();
     void train(int row_limit=INT_MAX);
-    void relation(vector<string> words);
-    void relation(uint word, uint parent, unordered_map<uint, double> &scores, int degree=3, double factor=1);
-    double score(Edge edge, uint count);
+    void train_block(vector<Row> &rows);
+    void test(int row_limit=INT_MAX);
 };
 
 #endif // FLOW_H

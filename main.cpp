@@ -12,7 +12,6 @@ int main()
 {
     Flow flow;
     flow.train(100000);
-    flow.relation(vector<string>({"file", "permissions"}));
-    flow.relation(vector<string>({"c", "++", "private", "protected"}));
+    flow.test();
     return 0;
 }
