@@ -8,12 +8,16 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp \
     dataset.cpp \
     row.cpp \
-    flow.cpp
+    flow.cpp \
+    vertex.cpp \
+    edge.cpp
 
 HEADERS += \
     dataset.h \
     row.h \
-    flow.h
+    flow.h \
+    vertex.h \
+    edge.h
 
 LIBS += \
     /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6 \

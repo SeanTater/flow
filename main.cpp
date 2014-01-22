@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
     Flow flow;
-    flow.train(100000);
-    flow.test();
+    flow.train(10000);
+    flow.test(10000);
     return 0;
 }
