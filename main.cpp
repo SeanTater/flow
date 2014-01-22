@@ -2,16 +2,14 @@
 #include <vector>
 #include <string>
 
-#include "dataset.h"
-#include "row.h"
-#include "flow.h"
+#include "sek.h"
 
 using namespace std;
 
 int main()
 {
-    Flow<string> flow;
-    flow.train(10000);
-    flow.test(10000);
+    Sek sek;
+    sek.train(10000);
+    sek.flowgraph.test(10000);
     return 0;
 }

@@ -13,53 +13,26 @@ class Flow
     typedef unordered_map<Item, Vertex*> VertexMap;
     VertexMap vertices;
 public:
-    void train(int row_limit=INT_MAX);
-    void train_block(vector<Row> &rows);
+    void train(vector<Item> message);
     void test(int row_limit=INT_MAX);
 };
 
-
-
-
 template<typename Item>
-void Flow<Item>::train(int row_limit) {
-
-    int train_start_index = 0;
-    Dataset dataset("/tmp/sek.db", "train");
-    vector<Row> rows = dataset.load_block(train_start_index);
-
-    while(not rows.empty()) {
-        train_block(rows);
-
-        train_start_index = rows.back().id + 1;
-        rows = dataset.load_block(train_start_index);
-        cout << "train start: " << train_start_index << endl;
-
-        if (train_start_index > row_limit) {
-            // Short training
-            break;
-        }
+void Flow<Item>::train(vector<Item> message) {
+    unordered_map<Item, uint> message_word_count;
+    for (Item &phrase : message) {
+        Vertex *vert = vertices[phrase];
+        if (not vert) vert = vertices[phrase] = new Vertex();
+        vert->text = phrase;
+        vert->count++;
+        message_word_count[phrase]++;
     }
-}
-
-template<typename Item>
-void Flow<Item>::train_block(vector<Row> &rows) {
-    for (Row &row : rows) {
-        unordered_map<string, uint> message_word_count;
-        for (string &text : row.words) {
-            Vertex *vert = vertices[text];
-            if (not vert) vert = vertices[text] = new Vertex();
-            vert->text = text;
-            vert->count++;
-            message_word_count[text]++;
-        }
-        for (pair<const string, uint> &start : message_word_count) {
-            Vertex *start_vert = vertices[start.first];
-            for (pair<const string, uint> &end : message_word_count) {
-                if (start.first != end.first) {
-                    Vertex *end_vert = vertices[end.first];
-                    start_vert->link_vertex(end_vert, end.second);
-                }
+    for (pair<const Item, uint> &start : message_word_count) {
+        Vertex *start_vert = vertices[start.first];
+        for (pair<const Item, uint> &end : message_word_count) {
+            if (start.first != end.first) {
+                Vertex *end_vert = vertices[end.first];
+                start_vert->link_vertex(end_vert, end.second);
             }
         }
     }

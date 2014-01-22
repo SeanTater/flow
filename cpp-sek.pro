@@ -9,14 +9,16 @@ SOURCES += main.cpp \
     dataset.cpp \
     row.cpp \
     vertex.cpp \
-    edge.cpp
+    edge.cpp \
+    sek.cpp
 
 HEADERS += \
     dataset.h \
     row.h \
     flow.h \
     vertex.h \
-    edge.h
+    edge.h \
+    sek.h
 
 LIBS += \
     /usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6 \
