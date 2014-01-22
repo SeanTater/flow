@@ -8,7 +8,6 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp \
     dataset.cpp \
     row.cpp \
-    flow.cpp \
     vertex.cpp \
     edge.cpp
 
