@@ -18,3 +18,27 @@ void Sek::train_block(vector<Row> &rows) {
         flowgraph.train(row.words);
     }
 }
+
+
+void Sek::test(int row_limit) {
+    const int start_index = 100000;
+    int index = start_index;
+    Dataset dataset("/tmp/sek.db", "train");
+    vector<Row> rows = dataset.load_block(start_index);
+    while(not rows.empty() and (index - start_index) < row_limit) {
+        for (Row &row : rows) {
+            auto results = flowgraph.test(row.words);
+
+            // Display log printout (capture for submission)
+            cout << row.id << ",\"";
+            for (uint i=0; i<3 && i < results.size(); i++) {
+                cout << results[i].result.substr(5) << " ";
+            }
+            cout << "\" \"" << row.tag_string << "\"" <<     endl;
+            cout << "\"" << endl;
+        }
+
+        index = rows.back().id + 1;
+        rows = dataset.load_block(index);
+    }
+}

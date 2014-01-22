@@ -12,6 +12,7 @@ public:
     Flow<string> flowgraph;
     void train(int row_limit);
     void train_block(vector<Row>&);
+    void test(int row_limit);
 };
 
 #endif // SEK_H

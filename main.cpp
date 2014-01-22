@@ -10,6 +10,6 @@ int main()
 {
     Sek sek;
     sek.train(10000);
-    sek.flowgraph.test(10000);
+    sek.test(10000);
     return 0;
 }
