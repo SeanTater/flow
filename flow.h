@@ -43,7 +43,8 @@ public:
 template<typename Item>
 class Flow
 {
-    typedef unordered_map<Item, Vertex*> VertexMap;
+    typedef Vertex<Item> IVertex;
+    typedef unordered_map<Item, IVertex*> VertexMap;
     VertexMap vertices;
 public:
     void train(vector<Item> message);
@@ -55,17 +56,17 @@ template<typename Item>
 void Flow<Item>::train(vector<Item> message) {
     unordered_map<Item, uint> message_word_count;
     for (Item &phrase : message) {
-        Vertex *vert = vertices[phrase];
-        if (not vert) vert = vertices[phrase] = new Vertex();
+        IVertex *vert = vertices[phrase];
+        if (not vert) vert = vertices[phrase] = new IVertex();
         vert->text = phrase;
         vert->count++;
         message_word_count[phrase]++;
     }
     for (pair<const Item, uint> &start : message_word_count) {
-        Vertex *start_vert = vertices[start.first];
+        IVertex *start_vert = vertices[start.first];
         for (pair<const Item, uint> &end : message_word_count) {
             if (start.first != end.first) {
-                Vertex *end_vert = vertices[end.first];
+                IVertex *end_vert = vertices[end.first];
                 start_vert->link_vertex(end_vert, end.second);
             }
         }
@@ -79,14 +80,14 @@ vector<ScoredResult<Item> > Flow<Item>::test(vector<Item> message) {
         message_word_count[text]++;
     }
 
-    unordered_map<Vertex*, double> links;
+    unordered_map<IVertex*, double> links;
     for (pair<const Item, uint> &start : message_word_count) {
-        Vertex *vert = vertices[start.first];
+        IVertex *vert = vertices[start.first];
         if (not vert) continue; // Can't find it
         vert->relation(vert, links, start.second, 2);
     }
 
-    vector<ScoredResult<Item> > ordered_links;
+    vector<ScoredResult<Item>> ordered_links;
     for (auto &link : links) {
         //TODO: Find a text-agnostic way of determining this
         if (link.first->text.substr(0, 4) == "tag:")
