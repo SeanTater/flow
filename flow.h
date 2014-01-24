@@ -75,11 +75,14 @@ void Flow<Item>::train(vector<Item> message) {
 
 template<typename Item>
 vector<ScoredResult<Item> > Flow<Item>::test(vector<Item> message) {
-    unordered_map<string, uint> message_word_count;
+
+    // Count the word in the message
+    unordered_map<Item, uint> message_word_count;
     for (Item &text : message) {
         message_word_count[text]++;
     }
 
+    // Add all the word's connections
     unordered_map<IVertex*, double> links;
     for (pair<const Item, uint> &start : message_word_count) {
         IVertex *vert = vertices[start.first];
@@ -87,11 +90,10 @@ vector<ScoredResult<Item> > Flow<Item>::test(vector<Item> message) {
         vert->relation(vert, links, start.second, 2);
     }
 
+
     vector<ScoredResult<Item>> ordered_links;
     for (auto &link : links) {
-        //TODO: Find a text-agnostic way of determining this
-        if (link.first->text.substr(0, 4) == "tag:")
-            ordered_links.push_back(ScoredResult<Item>(link.first->text, link.second));
+        ordered_links.push_back(ScoredResult<Item>(link.first->text, link.second));
     }
 
     sort(ordered_links.begin(), ordered_links.end(), std::greater<ScoredResult<Item> >());

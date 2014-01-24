@@ -28,11 +28,15 @@ void Sek::test(int row_limit) {
     while(not rows.empty() and (index - start_index) < row_limit) {
         for (Row &row : rows) {
             auto results = flowgraph.test(row.words);
+            results.erase(remove_if(results.begin(), results.end(),
+                                    [](const ScoredResult<string> r){ return r.result.substr(0, 4) != "tag:"; }), results.end());
+            //TODO: Find a text-agnostic way of determining this
+            //if (link.first->text.substr(0, 4) == "tag:")
 
             // Display log printout (capture for submission)
             cout << row.id << ",\"";
             for (uint i=0; i<3 && i < results.size(); i++) {
-                cout << results[i].result.substr(5) << " ";
+                cout << results[i].result.substr(4) << " ";
             }
             cout << "\" \"" << row.tag_string << "\"" <<     endl;
             cout << "\"" << endl;
