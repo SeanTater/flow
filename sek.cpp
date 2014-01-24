@@ -35,7 +35,7 @@ void Sek::test(int row_limit) {
 
             // Display log printout (capture for submission)
             cout << row.id << ",\"";
-            for (uint i=0; i<3 && i < results.size(); i++) {
+            for (uint i=0; i<5 && i < results.size() && results[i].result != "tag: 0"; i++) {
                 cout << results[i].result.substr(4) << " ";
             }
             cout << "\" \"" << row.tag_string << "\"" <<     endl;
