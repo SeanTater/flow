@@ -5,8 +5,10 @@ Row::Row(int id, string title, string body, string tags) {
     tag_string = tags;
     tokenize(title, boost::regex("[^\\w\\s]+|\\w+"), words, string(""));
     tokenize(body, boost::regex("[^\\w\\s]+|\\w+"), words, string(""));
-    tokenize(tags, boost::regex("[^ ]+"), words, string("tag: "));
-    words.push_back(string("tag: 0"));
+    words_with_tags = words;
+    tokenize(tags, boost::regex("[^ ]+"), words_with_tags, string("tag: "));
+    tokenize(tags, boost::regex("[^ ]+"), this->tags, string(""));
+    //words.push_back(string("tag: 0"));
 }
 
 Row::Row(int id, string title, string body) {

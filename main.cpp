@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 
@@ -10,6 +11,6 @@ int main()
 {
     Sek sek;
     sek.train(5000);
-    sek.test(1000);
+    sek.test(1000, false);
     return 0;
 }

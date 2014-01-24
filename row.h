@@ -13,6 +13,7 @@ public:
     Row(int, string, string, string);
     Row(int, string, string);
     vector<string> words;
+    vector<string> words_with_tags;
     vector<string> tags;
     void tokenize(string text, boost::regex pattern, vector<string> &tokens, string prefix);
 };
